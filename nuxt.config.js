@@ -40,8 +40,19 @@ export default {
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    '@nuxtjs/axios'
   ],
-
+  axios: {
+    proxy: true     // proxy 사용
+  },
+  proxy: {
+      '/api':{
+        target: `http://openapi.molit.go.kr/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTradeDev`,// proxy url
+        pathRewrite: {'^/api': ''},
+        changeOrigin: true,
+        secure: false
+      } 
+  },
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
     customVariables: ['~/assets/variables.scss'],

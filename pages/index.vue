@@ -3,6 +3,10 @@
 </template>
 
 <script>
+import {getApartmentData} from '~/api/apartment';
+import axios from "axios";
+import { serviceKey } from '~/constants/index';
+
 export default {
   name: 'IndexPage',
   data(){
@@ -13,14 +17,27 @@ export default {
   setup(){},
   created() {},
   mounted(){
+    this.test();
     if(window.kakao && window.kakao.maps){
       this.loadMap();
     } else{
       this.loadScript();
     }
+    this.searchApartment();
   },
   unmounted() {},
   methods: {
+    async test(){
+      console.log("test")
+      await axios.get(`/api?serviceKey=${serviceKey}&pageNo=1&numOfRows=100&LAWD_CD=11110&DEAL_YMD=201512`
+      ,{
+	      withCredentials: true // 쿠키 cors 통신 설정
+      }).then((res) => {
+        console.log(res.data)
+        console.log(res.data.response.body)
+      })
+    
+    },
     //api 출력
     loadScript(){
       const script = document.createElement("script");
@@ -50,6 +67,29 @@ export default {
         position: markerPosition,
       });
       marker.setMap(this.map);
+    },
+    searchApartment(){
+      var ps = new kakao.maps.services.Places(); 
+      // 키워드로 장소를 검색합니다
+      ps.keywordSearch('서울특별시 "롯데미도파광화문빌딩"', placesSearchCB); 
+
+      // 키워드 검색 완료 시 호출되는 콜백함수 입니다
+      function placesSearchCB (data, status, pagination) {
+          if (status === kakao.maps.services.Status.OK) {
+
+              // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
+              // LatLngBounds 객체에 좌표를 추가합니다
+              var bounds = new kakao.maps.LatLngBounds();
+
+              for (var i=0; i<data.length; i++) {
+                  displayMarker(data[i]);    
+                  bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x));
+              }       
+
+              // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+              map.setBounds(bounds);
+          } 
+      }
     }
   }
 }
