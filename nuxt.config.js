@@ -16,6 +16,10 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    ],
+    script:[
+      { src: '//dapi.kakao.com/v2/maps/sdk.js?appkey=ccf0d2c43215087dbc06b1437f0ebf06&autoload=false',
+        src: '//dapi.kakao.com/v2/maps/sdk.js?appkey=ccf0d2c43215087dbc06b1437f0ebf06&autoload=false&libraries=services'}
     ]
   },
 
