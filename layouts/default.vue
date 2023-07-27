@@ -21,6 +21,18 @@
           clearable
         ></v-text-field>
     </v-toolbar>
+      <v-simple-table height="100%">
+        <tbody>
+          <tr v-for="(row, index) in dividedCities" :key="index">
+            <td v-for="(city, cityIndex) in row" :key="cityIndex">{{ city.name }} &nbsp;</td>
+          </tr>
+        </tbody>
+      </v-simple-table>
+
+      <v-divider color="#64B5F6"></v-divider>
+
+      123
+    <!--
     <v-row
         v-for="k in 3"
         :key="k"
@@ -36,6 +48,7 @@
           </v-sheet>
         </v-col>
       </v-row>
+      -->
       <!--
       <v-list>
         <v-list-item
@@ -120,7 +133,33 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Price Per Area Apartment'
+      title: 'Price Per Area Apartment',
+      cities: [
+          { name: '서울시' },
+          { name: '경기도' },
+          { name: '부산시' },
+          { name: '대구시' },
+          { name: '인천시' },
+          { name: '광주시' },
+          { name: '대전시' },
+          { name: '울산시' },
+          { name: '세종시' },
+          { name: '강원도' },
+        ],
+    }
+  },
+  computed: {
+    dividedCities() {
+      const divided = [];
+      const rows = 6;
+      const cols = 3;
+      let currentRow = 0;
+
+      for (let i = 0; i < this.cities.length; i += cols) {
+        divided.push(this.cities.slice(i, i + cols));
+      }
+
+      return divided;
     }
   }
 }
