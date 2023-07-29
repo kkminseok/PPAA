@@ -30,7 +30,7 @@ export default {
   methods: {
     async getApartData(){
       try{
-        const res = await axios.get(`/api?serviceKey=${serviceKey}&pageNo=1&numOfRows=100&LAWD_CD=11110&DEAL_YMD=202201`
+        const res = await axios.get(`/api?serviceKey=${serviceKey}&pageNo=1&numOfRows=1000&LAWD_CD=11110&DEAL_YMD=202201`
         ,{
           withCredentials: true, // 쿠키 cors 통신 설정
           timeout: 5000,
@@ -59,6 +59,8 @@ export default {
       const ps = new kakao.maps.services.Places(this.map); 
       console.log("아파트 데이터 : ", this.apartData);
       // 키워드로 장소를 검색합니다
+      // 가장 높은금액의 평당가 찾기
+      console.log("가장 높은 평당가 : ",await this.findMaxPricePerArea());
       for(var i=0; i< this.apartData.items.item.length; i++){
         var apartAddress = this.apartData.items.item[i].법정동 + " " + this.apartData.items.item[i].아파트;
         this.apartDetailData = this.apartData.items.item[i];
@@ -71,6 +73,16 @@ export default {
         //await ps.keywordSearch(apartAddress, await this.placesSearchCB); 
       }
       
+    },
+    async findMaxPricePerArea(){
+      var max = 0;
+       for(var i=0; i< this.apartData.items.item.length; i++){
+        var price = Math.floor(parseInt(this.apartData.items.item[i].거래금액)/parseInt(this.apartData.items.item[i].전용면적) * 1000)
+        if(max < price){
+          max = price;
+        }
+      }
+      return max;
     },
     // 키워드 검색을 Promise로 래핑한 함수
     async customSearch(ps, apartAddress) {
@@ -130,7 +142,7 @@ export default {
       html+="건축년도: " + this.apartDetailData.건축년도 + "년" + "<br/>";
       html+="가격: " + parseInt(this.apartDetailData.거래금액)/10 + "억원" + "<br/>";
       html+="평수: " + Math.floor(parseInt(this.apartDetailData.전용면적) / 3.3) +"평형 <br/>";
-      html+="평당가: " + Math.floor(parseInt(this.apartDetailData.전용면적)/parseInt(this.apartDetailData.거래금액) * 1000) + "만원<br/>"
+      html+="평당가: " + Math.floor(parseInt(this.apartData.items.item[i].거래금액)/parseInt(this.apartData.items.item[i].전용면적) * 1000) + "만원<br/>"
       return html;
     }
   }
