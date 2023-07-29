@@ -14,7 +14,7 @@ export default {
       infowindow: null,
       map: null,
       apartData: null,
-      apratDetailData:null,
+      apartDetailData:null,
       bounds: null,
     };
   },
@@ -30,7 +30,7 @@ export default {
   methods: {
     async getApartData(){
       try{
-        const res = await axios.get(`/api?serviceKey=${serviceKey}&pageNo=1&numOfRows=100&LAWD_CD=11110&DEAL_YMD=201512`
+        const res = await axios.get(`/api?serviceKey=${serviceKey}&pageNo=1&numOfRows=100&LAWD_CD=11110&DEAL_YMD=202201`
         ,{
           withCredentials: true, // 쿠키 cors 통신 설정
           timeout: 5000,
@@ -61,7 +61,7 @@ export default {
       // 키워드로 장소를 검색합니다
       for(var i=0; i< this.apartData.items.item.length; i++){
         var apartAddress = this.apartData.items.item[i].법정동 + " " + this.apartData.items.item[i].아파트;
-        this.apratDetailData = this.apartData.items.item[i];
+        this.apartDetailData = this.apartData.items.item[i];
         console.log("apartAddress: ", apartAddress);
         if(this.bounds == null){
           this.bounds = new kakao.maps.LatLngBounds();
@@ -91,9 +91,7 @@ export default {
             var bounds = new kakao.maps.LatLngBounds();
             for (var i=0; i<data.length; i++) {
               if(data[i].category_name == "부동산 > 주거시설 > 아파트"){
-                console.log("detail data:", this.apratDetailData);
-                console.log("bounds: ", bounds);
-                console.log("data:", data);
+                console.log("detail data:", this.apartDetailData);
                 await this.displayMarker(data[i]);    
                 this.bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x));
               }
@@ -108,13 +106,12 @@ export default {
      // 지도에 마커를 표시하는 함수입니다
     async displayMarker(place) {
       // 마커를 생성하고 지도에 표시합니다
-      console.log("place:", this.apratDetailData.아파트);
+      console.log("place:", this.apartDetailData.아파트);
       var marker = new kakao.maps.Marker({
           map: this.map,
           position: new kakao.maps.LatLng(place.y, place.x),
-          text: this.apratDetailData.아파트,
       });
-      var infowindow = new kakao.maps.InfoWindow({zIndex:1, content: '<div style="padding:5px;font-size:12px; color: black">' + this.apratDetailData.아파트 + '</div>'});
+      var infowindow = new kakao.maps.InfoWindow({zIndex:1, content: '<div style="padding:10px;font-size:12px; color: black">' + await this.createData() + '</div>'});
       console.log("infowindow: ", infowindow);
       infowindow.open(this.map, marker);
       // 마커에 클릭이벤트를 등록합니다
@@ -126,6 +123,15 @@ export default {
         infowindow.open(this.map, marker);
       });
       */
+    },
+    async createData(){
+      var html = "";
+      html+="아파트명: " + this.apartDetailData.아파트 +"<br/>";
+      html+="건축년도: " + this.apartDetailData.건축년도 + "년" + "<br/>";
+      html+="가격: " + parseInt(this.apartDetailData.거래금액)/10 + "억원" + "<br/>";
+      html+="평수: " + Math.floor(parseInt(this.apartDetailData.전용면적) / 3.3) +"평형 <br/>";
+      html+="평당가: " + Math.floor(parseInt(this.apartDetailData.전용면적)/parseInt(this.apartDetailData.거래금액) * 1000) + "만원<br/>"
+      return html;
     }
   }
 }
