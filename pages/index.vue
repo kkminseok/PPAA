@@ -5,6 +5,7 @@
 <script>
 import axios from "axios";
 import { serviceKey } from '~/constants/index';
+import { getOneYearsAgo } from "~/utils/date"
 
 export default {
   name: 'IndexPage',
@@ -29,7 +30,41 @@ export default {
   unmounted() {},
   methods: {
     async getApartData(){
-      try{
+        const result = new Map();
+        //현재날짜 기준으로 1년 전 날짜 가져오기
+        const oneYearsAgo = getOneYearsAgo();
+        //처음은 종로구 기준 (11110)
+        const splitedDay = oneYearsAgo.split("/");
+        const agoYears = splitedDay[0];
+        const months = splitedDay[1];
+        for(var i=-1; i<12; ++i){
+          var tmpDay = new Date(agoYears, parseInt(months) + i);
+          const getMonths = (tmpDay.getMonth() + 1).toString().padStart(2, '0');
+          var tmpSearchDay = tmpDay.getFullYear()+ ""+ getMonths;
+          console.log("searchDay", tmpSearchDay);
+          try{
+            const res = await axios.get(`/api?serviceKey=${serviceKey}&pageNo=1&numOfRows=1000&LAWD_CD=11110&DEAL_YMD=`+ tmpSearchDay
+            ,{
+              withCredentials: true, // 쿠키 cors 통신 설정
+              timeout: 5000,
+            })
+            console.log(tmpSearchDay);
+            console.log("response : ", res.data);
+            var items = res.data.response.body.items.item;
+            for(var idx=0; idx<items.length; ++idx){
+              console.log(items[idx]);
+              result.set(items[idx].아파트,items[idx]);
+            }
+            
+          } catch (error) {
+              console.error("Error fetching data:", error);
+              return null; // Return a default value or handle the error as needed
+            }
+          }
+          console.log("result: ",result);
+          debugger;
+          return result;
+        /*
         const res = await axios.get(`/api?serviceKey=${serviceKey}&pageNo=1&numOfRows=1000&LAWD_CD=11110&DEAL_YMD=202201`
         ,{
           withCredentials: true, // 쿠키 cors 통신 설정
@@ -42,6 +77,7 @@ export default {
           console.error("Error fetching data:", error);
           return null; // Return a default value or handle the error as needed
         }
+        */
     },
     //map 출력
     loadMap(){
