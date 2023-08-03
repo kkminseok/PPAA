@@ -81,23 +81,19 @@ export default {
       // 키워드로 장소를 검색합니다
       // 가장 높은금액의 평당가 찾기
       console.log("가장 높은 평당가 : ",await this.findMaxPricePerArea());
-      for(var i=0; i< this.apartData.items.item.length; i++){
-        var apartAddress = this.apartData.items.item[i].법정동 + " " + this.apartData.items.item[i].아파트;
-        this.apartDetailData = this.apartData.items.item[i];
+      for (const [key, value] of this.apartData) {
+        var apartAddress = value.법정동 + " " + value.아파트;
+        this.apartDetailData = value;
         console.log("apartAddress: ", apartAddress);
         if(this.bounds == null){
           this.bounds = new kakao.maps.LatLngBounds();
         }
-            // 검색된 결과를 순차적으로 처리하기 위해 await 사용
+        // 검색된 결과를 순차적으로 처리하기 위해 await 사용
         await this.customSearch(ps, apartAddress);
-        //await ps.keywordSearch(apartAddress, await this.placesSearchCB); 
       }
-      
     },
     async findMaxPricePerArea(){
       var max = 0;
-      debugger;
-      console.log(this.apartData.size);
       this.apartData.forEach((value, key) => {
         console.log(`Key: ${key}, Value: ${value.거래금액}`);
         var price = Math.floor(parseInt(value.거래금액)/(parseInt(value.전용면적) / 3.3) * 1000)
@@ -166,7 +162,7 @@ export default {
       html+="건축년도: " + this.apartDetailData.건축년도 + "년" + "<br/>";
       html+="가격: " + parseInt(this.apartDetailData.거래금액)/10 + "억원" + "<br/>";
       html+="평수: " + Math.floor(parseInt(this.apartDetailData.전용면적) / 3.3) +"평형 <br/>";
-      html+="평당가: " + Math.floor(parseInt(this.apartData.items.item[i].거래금액)/parseInt(this.apartData.items.item[i].전용면적) * 1000) + "만원<br/>"
+      html+="평당가: " + Math.floor(parseInt(this.apartDetailData.거래금액)/(parseInt(this.apartDetailData.전용면적) / 3.3) * 1000) + "만원<br/>"
       return html;
     }
   }
