@@ -31,7 +31,10 @@
 
       <v-divider color="#64B5F6"></v-divider>
 
-      123
+      지역 최고 평단가 : {{ $store.state.maxPrice }} 만원 <br>
+
+      지역 70% 평단가 : {{$store.state.maxPrice * 0.7}} 만원 <br>
+
     <!--
     <v-row
         v-for="k in 3"

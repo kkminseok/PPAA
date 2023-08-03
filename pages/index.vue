@@ -17,6 +17,7 @@ export default {
       apartData: null,
       apartDetailData:null,
       bounds: null,
+      maxPriceApart: null,
     };
   },
   setup(){},
@@ -80,7 +81,11 @@ export default {
       console.log("아파트 데이터 : ", this.apartData);
       // 키워드로 장소를 검색합니다
       // 가장 높은금액의 평당가 찾기
-      console.log("가장 높은 평당가 : ",await this.findMaxPricePerArea());
+      this.maxPriceApart = await this.findMaxPricePerArea();
+
+      this.$store.commit('setMaxPrice', this.maxPriceApart);
+
+      console.log("가장 높은 평당가 : ",this.maxPriceApart);
       for (const [key, value] of this.apartData) {
         var apartAddress = value.법정동 + " " + value.아파트;
         this.apartDetailData = value;
@@ -143,7 +148,14 @@ export default {
           map: this.map,
           position: new kakao.maps.LatLng(place.y, place.x),
       });
-      var infowindow = new kakao.maps.InfoWindow({zIndex:1, content: '<div style="padding:10px;font-size:12px; color: black">' + await this.createData() + '</div>'});
+      var investApart = await this.isInvestApart();
+      var style = "";
+      if(investApart){
+        style = '"<div style="padding:10px;font-size:12px; color: red">"';
+      } else{
+        style = '"<div style="padding:10px;font-size:12px; color: black">"';
+      }
+      var infowindow = new kakao.maps.InfoWindow({zIndex:1, content: style + await this.createData() + '</div>'});
       console.log("infowindow: ", infowindow);
       infowindow.open(this.map, marker);
       // 마커에 클릭이벤트를 등록합니다
@@ -155,6 +167,12 @@ export default {
         infowindow.open(this.map, marker);
       });
       */
+    },
+    async isInvestApart(){
+      var apartPrice = Math.floor(parseInt(this.apartDetailData.거래금액)/(parseInt(this.apartDetailData.전용면적) / 3.3) * 1000)
+      if(apartPrice > this.maxPriceApart * 0.7)
+        return true;
+      return false;
     },
     async createData(){
       var html = "";
