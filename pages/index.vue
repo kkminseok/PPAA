@@ -49,7 +49,6 @@ export default {
               timeout: 5000,
             })
             console.log(tmpSearchDay);
-            console.log("response : ", res.data);
             var items = res.data.response.body.items.item;
             for(var idx=0; idx<items.length; ++idx){
               console.log(items[idx]);
@@ -62,22 +61,7 @@ export default {
             }
           }
           console.log("result: ",result);
-          debugger;
           return result;
-        /*
-        const res = await axios.get(`/api?serviceKey=${serviceKey}&pageNo=1&numOfRows=1000&LAWD_CD=11110&DEAL_YMD=202201`
-        ,{
-          withCredentials: true, // 쿠키 cors 통신 설정
-          timeout: 5000,
-        })
-        console.log("response : ", res.data);
-        debugger;
-        return res.data.response.body;
-      } catch (error) {
-          console.error("Error fetching data:", error);
-          return null; // Return a default value or handle the error as needed
-        }
-        */
     },
     //map 출력
     loadMap(){
@@ -112,12 +96,16 @@ export default {
     },
     async findMaxPricePerArea(){
       var max = 0;
-       for(var i=0; i< this.apartData.items.item.length; i++){
-        var price = Math.floor(parseInt(this.apartData.items.item[i].거래금액)/parseInt(this.apartData.items.item[i].전용면적) * 1000)
+      debugger;
+      console.log(this.apartData.size);
+      this.apartData.forEach((value, key) => {
+        console.log(`Key: ${key}, Value: ${value.거래금액}`);
+        var price = Math.floor(parseInt(value.거래금액)/(parseInt(value.전용면적) / 3.3) * 1000)
         if(max < price){
           max = price;
+          console.log(max, key);
         }
-      }
+      });
       return max;
     },
     // 키워드 검색을 Promise로 래핑한 함수
