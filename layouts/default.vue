@@ -21,13 +21,21 @@
           clearable
         ></v-text-field>
     </v-toolbar>
-      <v-simple-table height="100%">
-        <tbody>
-          <tr v-for="(row, index) in dividedCities" :key="index">
-            <td v-for="(city, cityIndex) in row" :key="cityIndex">{{ city.name }} &nbsp;</td>
-          </tr>
-        </tbody>
-      </v-simple-table>
+      <v-data-table
+        :headers="headers"
+        :items="cities"
+        hide-default-header
+        hide-default-footer
+        class="elevation-1"
+        height="100%" @click:row="test">
+          <template #item="{ item }">
+            <tr>
+              <td @click="cellClickHandler(item, 'name1')">{{ item.name1 }}</td>
+              <td @click="cellClickHandler(item, 'name2')">{{ item.name2 }}</td>
+              <td @click="cellClickHandler(item, 'name3')">{{ item.name3 }}</td>
+            </tr>
+          </template>
+      </v-data-table>
 
       <v-divider color="#64B5F6"></v-divider>
 
@@ -105,18 +113,28 @@ export default {
       right: true,
       rightDrawer: false,
       title: 'Price Per Area Apartment',
+      headers: [
+        { text: 'Column 1', value: 'name1' },
+        { text: 'Column 2', value: 'name2' },
+        { text: 'Column 3', value: 'name3' }
+      ],
       cities: [
-          { name: '서울시' },
-          { name: '경기도' },
-          { name: '부산시' },
-          { name: '대구시' },
-          { name: '인천시' },
-          { name: '광주시' },
-          { name: '대전시' },
-          { name: '울산시' },
-          { name: '세종시' },
-          { name: '강원도' },
+          { name1: '서울시', name2: '경기도', name3: '부산시' },
+          { name1: '대구시', name2: '인천시', name3: '광주시' },
+          { name1: '대전시', name2: '울산시', name3: '세종시' },
+          { name1: '강원도', name2: '추가 예정..'},
         ],
+      seoul: [
+        {name1: '강남구', name2: '강동구', name3: '강북구'},
+        {name1: '강서구', name2: '관악구', name3: '광진구'},
+        {name1: '구로구', name2: '금천구', name3: '노원구'},
+        {name1: '도봉구', name2: '동대문구', name3: '동작구'},
+        {name1: '마포구', name2: '서대문구', name3: '서초구'},
+        {name1: '성동구', name2: '성북구', name3: '송파구'},
+        {name1: '양천구', name2: '영등포구', name3: '용산구'},
+        {name1: '은평구', name2: '종로구', name3: '중구'},
+        {name1: '중랑구'},
+      ]
     }
   },
   computed: {
@@ -141,6 +159,15 @@ export default {
     async showAllApart(){
       this.$store.commit('showAllSpot')
     },
+    async test(value){
+      console.log(value);
+    },
+    async cellClickHandler(item, columnName) {
+      if(item[columnName] === '서울시'){
+        this.cities = this.seoul;
+      }
+      console.log(`Clicked cell in column ${columnName}:`, item[columnName]);
+    }
   }
 }
 </script>

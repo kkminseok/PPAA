@@ -49,6 +49,7 @@ export default {
               withCredentials: true, // 쿠키 cors 통신 설정
               timeout: 5000,
             })
+            console.log(res)
             console.log(tmpSearchDay);
             var items = res.data.response.body.items.item;
             for(var idx=0; idx<items.length; ++idx){
@@ -154,7 +155,6 @@ export default {
       if(investApart){
         style = '<div style="padding:15px;font-size:12px; color: red">';
         this.$store.commit('addInvestSpot', marker);
-        console.log("!!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@",marker);
       } else{
         style = '<div style="padding:15px;font-size:12px; color: black">';
       }
