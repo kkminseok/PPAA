@@ -34,42 +34,10 @@
       지역 최고 평단가 : {{ $store.state.maxPrice }} 만원 <br>
 
       지역 70% 평단가 : {{$store.state.maxPrice * 0.7}} 만원 <br>
-
-    <!--
-    <v-row
-        v-for="k in 3"
-        :key="k"
-        align="start"
-        no-gutters
-      >
-        <v-col
-          v-for="n in 3"
-          :key="n"
-        >
-          <v-sheet class="pa-2 ma-2">
-            .align-start
-          </v-sheet>
-        </v-col>
-      </v-row>
-      -->
-      <!--
-      <v-list>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
-          router
-          exact
-        >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-      -->
+      <v-btn block
+        v-on:click="showInvestApart">70%이상만 보기</v-btn>
+      <v-btn block
+        v-on:click="showAllApart">전체 보기</v-btn>  
     </v-navigation-drawer>
     <v-app-bar
       :clipped-left="clipped"
@@ -164,6 +132,15 @@ export default {
 
       return divided;
     }
+  },
+  methods: {
+    async showInvestApart(){
+      this.$store.commit('hideAllSpot')
+      this.$store.commit('showInvestSpot')
+    },
+    async showAllApart(){
+      this.$store.commit('showAllSpot')
+    },
   }
 }
 </script>

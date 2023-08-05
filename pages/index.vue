@@ -75,6 +75,7 @@ export default {
       };
       var map = new kakao.maps.Map(container, options); //지도 생성 및 객체 리턴
       this.map = map;
+      this.$store.commit('setMap',map);
     },
     async searchApartment(){
       const ps = new kakao.maps.services.Places(this.map); 
@@ -151,22 +152,21 @@ export default {
       var investApart = await this.isInvestApart();
       var style = "";
       if(investApart){
-        style = '"<div style="padding:10px;font-size:12px; color: red">"';
+        style = '<div style="padding:15px;font-size:12px; color: red">';
+        this.$store.commit('addInvestSpot', marker);
+        console.log("!!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@",marker);
       } else{
-        style = '"<div style="padding:10px;font-size:12px; color: black">"';
+        style = '<div style="padding:15px;font-size:12px; color: black">';
       }
+      this.$store.commit('addSpot',marker);
       var infowindow = new kakao.maps.InfoWindow({zIndex:1, content: style + await this.createData() + '</div>'});
+      if(investApart){
+        this.$store.commit('addInvestSpotInfoWindow', infowindow);
+      }
+      this.$store.commit('addSpotInfoWindow', infowindow);
       console.log("infowindow: ", infowindow);
       infowindow.open(this.map, marker);
-      // 마커에 클릭이벤트를 등록합니다
-      /*
-      kakao.maps.event.addListener(marker, 'click', () => {
-        // 마커를 클릭하면 장소명이 인포윈도우에 표출됩니다
-        console.log(infowindow.getContent());
-        infowindow.setContent('<div style="padding:5px;font-size:12px; color: red">' + infowindow.getContent() + '</div>');
-        infowindow.open(this.map, marker);
-      });
-      */
+      console.log(this.$store.state.spotList.length);
     },
     async isInvestApart(){
       var apartPrice = Math.floor(parseInt(this.apartDetailData.거래금액)/(parseInt(this.apartDetailData.전용면적) / 3.3) * 1000)
@@ -181,6 +181,7 @@ export default {
       html+="가격: " + parseInt(this.apartDetailData.거래금액)/10 + "억원" + "<br/>";
       html+="평수: " + Math.floor(parseInt(this.apartDetailData.전용면적) / 3.3) +"평형 <br/>";
       html+="평당가: " + Math.floor(parseInt(this.apartDetailData.거래금액)/(parseInt(this.apartDetailData.전용면적) / 3.3) * 1000) + "만원<br/>"
+      html+="매수일자" + this.apartDetailData.년 + "." + this.apartDetailData.월.toString().padStart(2, '0') + "." + this.apartDetailData.일.toString().padStart(2, '0')
       return html;
     }
   }
