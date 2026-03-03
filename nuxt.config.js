@@ -45,17 +45,11 @@ export default {
   modules: [
     '@nuxtjs/axios'
   ],
-  axios: {
-    proxy: true     // proxy 사용
-  },
-  proxy: {
-      '/api':{
-        target: `https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev`,
-        pathRewrite: {'^/api': ''},
-        changeOrigin: true,
-        secure: false
-      }
-  },
+
+  // API 프록시 (Vercel 서버리스 호환)
+  serverMiddleware: [
+    { path: '/api', handler: '~/server-middleware/api-proxy.js' }
+  ],
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
     treeShake: true,
