@@ -126,11 +126,12 @@ export default {
     async findMaxPricePerArea() {
       var max = 0;
       this.apartData.forEach((value) => {
-        var price = Math.floor(parseInt(value.dealAmount.replace(/,/g, '')) / (value.excluUseAr / 3.3) * 1000)
+        var price = Math.floor(parseInt(value.dealAmount.replace(/,/g, '')) / (value.excluUseAr / 3.3))
         if (max < price) max = price;
       });
 
-      // 평당가 순으로 정렬해서 store에 저장
+      // 70% 이상인 것만 오름차순 정렬 (가장 저렴한 유망주부터)
+      const threshold = max * 0.7;
       const sorted = Array.from(this.apartData.values())
         .map(v => ({
           aptNm: v.aptNm,
@@ -138,9 +139,10 @@ export default {
           dealAmount: v.dealAmount,
           excluUseAr: v.excluUseAr,
           buildYear: v.buildYear,
-          pricePerPyeong: Math.floor(parseInt(v.dealAmount.replace(/,/g, '')) / (v.excluUseAr / 3.3) * 1000)
+          pricePerPyeong: Math.floor(parseInt(v.dealAmount.replace(/,/g, '')) / (v.excluUseAr / 3.3))
         }))
-        .sort((a, b) => b.pricePerPyeong - a.pricePerPyeong);
+        .filter(v => v.pricePerPyeong >= threshold)
+        .sort((a, b) => a.pricePerPyeong - b.pricePerPyeong);
       this.$store.commit('setApartList', sorted);
 
       return max;
@@ -169,7 +171,7 @@ export default {
       const kakao = this._kakao;
       var isInvest = this.isInvestApart();
       var marker = new kakao.maps.Marker({
-        map: this.map,
+        map: isInvest ? this.map : null,
         position: new kakao.maps.LatLng(place.y, place.x),
       });
 
@@ -179,15 +181,15 @@ export default {
       if (isInvest) {
         this.$store.commit('addInvestSpot', marker);
         this.$store.commit('addInvestSpotInfoWindow', infowindow);
+        infowindow.open(this.map, marker);
       }
       this.$store.commit('addSpot', marker);
       this.$store.commit('addSpotInfoWindow', infowindow);
-      infowindow.open(this.map, marker);
     },
     isInvestApart() {
       const d = this.apartDetailData
       var apartPrice = Math.floor(
-        parseInt(d.dealAmount.replace(/,/g, '')) / (d.excluUseAr / 3.3) * 1000
+        parseInt(d.dealAmount.replace(/,/g, '')) / (d.excluUseAr / 3.3)
       )
       return apartPrice > this.maxPriceApart * 0.7
     },
@@ -196,7 +198,7 @@ export default {
       const price = parseInt(d.dealAmount.replace(/,/g, ''))
       const area = d.excluUseAr
       const pyeong = Math.floor(area / 3.3)
-      const pricePerPyeong = Math.floor(price / (area / 3.3) * 1000)
+      const pricePerPyeong = Math.floor(price / (area / 3.3))
       const color = isInvest ? '#ef5350' : '#ffffff'
       const badge = isInvest ? '<span style="background:#ef5350;color:#fff;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:6px;">투자유망</span>' : ''
 
@@ -215,7 +217,7 @@ export default {
             ${d.aptNm}${badge}
           </div>
           <div>건축: <b>${d.buildYear}년</b></div>
-          <div>가격: <b>${(price / 10).toFixed(1)}억원</b></div>
+          <div>가격: <b>${(price / 10000).toFixed(2)}억원</b></div>
           <div>면적: <b>${pyeong}평 (${area}㎡)</b></div>
           <div>평당가: <b>${pricePerPyeong.toLocaleString()}만원</b></div>
           <div style="color:#aaa;font-size:11px;margin-top:4px;">

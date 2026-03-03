@@ -81,6 +81,12 @@ export default {
     molitServiceKey: process.env.MOLIT_SERVICE_KEY,
   },
 
+  // 클라이언트 번들에 env 변수 인라인 (process.env 클라이언트 접근용)
+  env: {
+    MOLIT_SERVICE_KEY: process.env.MOLIT_SERVICE_KEY,
+    KAKAO_MAP_KEY: process.env.KAKAO_MAP_KEY,
+  },
+
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
   }

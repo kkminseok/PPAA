@@ -79,7 +79,7 @@
 
       <!-- 아파트 순위 리스트 -->
       <div v-if="$store.state.apartList.length > 0">
-        <v-subheader class="text-caption grey--text">평당가 순위</v-subheader>
+        <v-subheader class="text-caption grey--text">투자 유망 순위 (70% 이상, 오름차순)</v-subheader>
         <v-list dense style="overflow-y:auto; max-height:calc(100vh - 480px);">
           <v-list-item
             v-for="(item, idx) in $store.state.apartList"
@@ -93,13 +93,9 @@
             <v-list-item-content class="py-1">
               <v-list-item-title style="font-size:12px;" class="white--text">
                 {{ item.aptNm }}
-                <v-chip
-                  v-if="$store.state.maxPrice && item.pricePerPyeong > $store.state.maxPrice * 0.7"
-                  x-small color="error" class="ml-1"
-                >유망</v-chip>
               </v-list-item-title>
               <v-list-item-subtitle style="font-size:11px;">
-                <span class="primary--text font-weight-bold">{{ item.pricePerPyeong.toLocaleString() }}만원</span>
+                <span class="error--text font-weight-bold">{{ item.pricePerPyeong.toLocaleString() }}만원</span>
                 <span class="grey--text ml-1">/ {{ Math.floor(item.excluUseAr / 3.3) }}평</span>
               </v-list-item-subtitle>
             </v-list-item-content>
