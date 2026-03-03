@@ -1,1 +1,1 @@
-export const serviceKey = '54gbYPSxJfsHIsm9j61bKvpBxJ%2B6yhGUI1w2cqGtKxZ%2F2fRW7mw5eSDlPRHPCb963VcPIkIaFKbidFhc32V3SQ%3D%3D'
+export const serviceKey = (process.env.MOLIT_SERVICE_KEY as string) || ''

@@ -2,171 +2,219 @@
   <v-app dark>
     <v-navigation-drawer
       v-model="drawer"
-      :mini-variant="miniVariant"
       :clipped="clipped"
       fixed
       app
-      width="30%"
+      width="280"
     >
-    <v-toolbar
-      dense
-      floating
-      width="100%"
-    >
-      <v-text-field
+      <!-- 검색 -->
+      <v-sheet color="grey darken-3" class="pa-3">
+        <v-text-field
+          v-model="searchText"
           hide-details
-          prepend-icon="mdi-magnify"
+          prepend-inner-icon="mdi-magnify"
           single-line
-          label="지역을 검색하세요."
+          label="지역 검색"
+          outlined
+          dense
           clearable
-        ></v-text-field>
-    </v-toolbar>
-      <v-data-table
-        :headers="headers"
-        :items="cities"
-        hide-default-header
-        hide-default-footer
-        class="elevation-1"
-        height="100%" @click:row="test">
-          <template #item="{ item }">
-            <tr>
-              <td @click="cellClickHandler(item, 'name1')">{{ item.name1 }}</td>
-              <td @click="cellClickHandler(item, 'name2')">{{ item.name2 }}</td>
-              <td @click="cellClickHandler(item, 'name3')">{{ item.name3 }}</td>
-            </tr>
-          </template>
-      </v-data-table>
+          dark
+        />
+      </v-sheet>
 
-      <v-divider color="#64B5F6"></v-divider>
+      <v-divider />
 
-      지역 최고 평단가 : {{ $store.state.maxPrice }} 만원 <br>
+      <!-- 지역 선택 -->
+      <v-list dense>
+        <v-subheader class="text-caption grey--text">지역 선택</v-subheader>
+        <v-row no-gutters class="px-2">
+          <v-col
+            v-for="(item, i) in filteredCities"
+            :key="i"
+            cols="4"
+            class="pa-1"
+          >
+            <v-btn
+              block
+              small
+              :color="selectedRegion === item.name ? 'primary' : 'grey darken-2'"
+              @click="cellClickHandler(item)"
+              class="text-caption"
+              style="font-size:11px !important"
+            >
+              {{ item.name }}
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-list>
 
-      지역 70% 평단가 : {{$store.state.maxPrice * 0.7}} 만원 <br>
-      <v-btn block
-        v-on:click="showInvestApart">70%이상만 보기</v-btn>
-      <v-btn block
-        v-on:click="showAllApart">전체 보기</v-btn>  
+      <v-divider class="my-2" />
+
+      <!-- 통계 카드 -->
+      <div class="px-3 pb-3">
+        <v-card color="grey darken-3" class="mb-2 pa-3" rounded="lg">
+          <div class="text-caption grey--text mb-1">지역 최고 평당가</div>
+          <div class="text-h6 primary--text font-weight-bold">
+            {{ $store.state.maxPrice ? $store.state.maxPrice.toLocaleString() + ' 만원' : '-' }}
+          </div>
+        </v-card>
+        <v-card color="grey darken-3" class="mb-3 pa-3" rounded="lg">
+          <div class="text-caption grey--text mb-1">투자 기준 (70%)</div>
+          <div class="text-h6 amber--text font-weight-bold">
+            {{ $store.state.maxPrice ? Math.floor($store.state.maxPrice * 0.7).toLocaleString() + ' 만원' : '-' }}
+          </div>
+        </v-card>
+
+        <v-btn block color="error" class="mb-2" @click="showInvestApart">
+          <v-icon left small>mdi-fire</v-icon>
+          투자 유망만 보기
+        </v-btn>
+        <v-btn block color="grey darken-1" @click="showAllApart">
+          <v-icon left small>mdi-map-marker-multiple</v-icon>
+          전체 보기
+        </v-btn>
+      </div>
+
+      <v-divider class="mb-1" />
+
+      <!-- 아파트 순위 리스트 -->
+      <div v-if="$store.state.apartList.length > 0">
+        <v-subheader class="text-caption grey--text">평당가 순위</v-subheader>
+        <v-list dense style="overflow-y:auto; max-height:calc(100vh - 480px);">
+          <v-list-item
+            v-for="(item, idx) in $store.state.apartList"
+            :key="idx"
+            class="px-3"
+            style="min-height:48px; border-bottom:1px solid #333;"
+          >
+            <v-list-item-avatar size="22" :color="idx < 3 ? 'primary' : 'grey darken-2'" class="mr-2 my-0">
+              <span style="font-size:11px;font-weight:bold;color:#fff;">{{ idx + 1 }}</span>
+            </v-list-item-avatar>
+            <v-list-item-content class="py-1">
+              <v-list-item-title style="font-size:12px;" class="white--text">
+                {{ item.aptNm }}
+                <v-chip
+                  v-if="$store.state.maxPrice && item.pricePerPyeong > $store.state.maxPrice * 0.7"
+                  x-small color="error" class="ml-1"
+                >유망</v-chip>
+              </v-list-item-title>
+              <v-list-item-subtitle style="font-size:11px;">
+                <span class="primary--text font-weight-bold">{{ item.pricePerPyeong.toLocaleString() }}만원</span>
+                <span class="grey--text ml-1">/ {{ Math.floor(item.excluUseAr / 3.3) }}평</span>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </div>
+      <div v-else-if="$store.state.maxPrice === null" class="px-3 py-2 text-caption grey--text text-center">
+        지역을 선택하면 순위가 표시됩니다
+      </div>
     </v-navigation-drawer>
-    <v-app-bar
-      :clipped-left="clipped"
-      fixed
-      app
-    >
+
+    <v-app-bar :clipped-left="clipped" fixed app elevation="2" color="grey darken-4">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn
-        icon
-        @click.stop="miniVariant = !miniVariant"
-      >
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        @click.stop="clipped = !clipped"
-      >
-        <v-icon>mdi-application</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        @click.stop="fixed = !fixed"
-      >
-        <v-icon>mdi-minus</v-icon>
-      </v-btn>
-      <v-toolbar-title>{{ title }}</v-toolbar-title>
+      <v-toolbar-title class="font-weight-bold">
+        <span class="primary--text">PP</span>AA
+        <span class="text-caption grey--text ml-2">평당가 아파트 분석</span>
+      </v-toolbar-title>
       <v-spacer />
+      <v-chip v-if="selectedRegionLabel" color="primary" small class="mr-2">
+        <v-icon left small>mdi-map-marker</v-icon>
+        {{ selectedRegionLabel }}
+      </v-chip>
     </v-app-bar>
-    <v-main>
-      <v-container>
-        <Nuxt />
-      </v-container>
+
+    <v-main style="padding:0 !important;">
+      <Nuxt />
     </v-main>
-    <v-footer
-      :absolute="!fixed"
-      app
-    >
-      <span>&copy; {{ new Date().getFullYear() }} KMS</span>
-    </v-footer>
   </v-app>
 </template>
 
 <script>
 export default {
   name: 'DefaultLayout',
-  data () {
+  data() {
     return {
-      clipped: false,
-      drawer: false,
-      fixed: false,
-      items: [
-        {
-          icon: 'mdi-apps',
-          title: 'Welcome',
-          to: '/'
-        },
-        {
-          icon: 'mdi-chart-bubble',
-          title: 'Inspire',
-          to: '/inspire'
-        }
-      ],
-      //초기 메뉴바 축소 확대
-      miniVariant: false,
-      right: true,
-      rightDrawer: false,
-      title: 'Price Per Area Apartment',
-      headers: [
-        { text: 'Column 1', value: 'name1' },
-        { text: 'Column 2', value: 'name2' },
-        { text: 'Column 3', value: 'name3' }
-      ],
+      clipped: true,
+      drawer: true,
+      searchText: '',
+      selectedRegion: null,
+      selectedRegionLabel: null,
+      currentDepth: 'city',  // 'city' | 'district'
       cities: [
-          { name1: '서울시', name2: '경기도', name3: '부산시' },
-          { name1: '대구시', name2: '인천시', name3: '광주시' },
-          { name1: '대전시', name2: '울산시', name3: '세종시' },
-          { name1: '강원도', name2: '추가 예정..'},
-        ],
+        { name: '서울시', code: null },
+        { name: '경기도', code: null },
+        { name: '부산시', code: null },
+        { name: '대구시', code: null },
+        { name: '인천시', code: null },
+        { name: '광주시', code: null },
+        { name: '대전시', code: null },
+        { name: '울산시', code: null },
+        { name: '세종시', code: null },
+        { name: '강원도', code: null },
+      ],
       seoul: [
-        {name1: '강남구', name2: '강동구', name3: '강북구'},
-        {name1: '강서구', name2: '관악구', name3: '광진구'},
-        {name1: '구로구', name2: '금천구', name3: '노원구'},
-        {name1: '도봉구', name2: '동대문구', name3: '동작구'},
-        {name1: '마포구', name2: '서대문구', name3: '서초구'},
-        {name1: '성동구', name2: '성북구', name3: '송파구'},
-        {name1: '양천구', name2: '영등포구', name3: '용산구'},
-        {name1: '은평구', name2: '종로구', name3: '중구'},
-        {name1: '중랑구'},
-      ]
+        { name: '강남구', code: '11680' },
+        { name: '강동구', code: '11740' },
+        { name: '강북구', code: '11305' },
+        { name: '강서구', code: '11500' },
+        { name: '관악구', code: '11620' },
+        { name: '광진구', code: '11215' },
+        { name: '구로구', code: '11530' },
+        { name: '금천구', code: '11545' },
+        { name: '노원구', code: '11350' },
+        { name: '도봉구', code: '11320' },
+        { name: '동대문구', code: '11230' },
+        { name: '동작구', code: '11590' },
+        { name: '마포구', code: '11440' },
+        { name: '서대문구', code: '11410' },
+        { name: '서초구', code: '11650' },
+        { name: '성동구', code: '11200' },
+        { name: '성북구', code: '11290' },
+        { name: '송파구', code: '11710' },
+        { name: '양천구', code: '11470' },
+        { name: '영등포구', code: '11560' },
+        { name: '용산구', code: '11170' },
+        { name: '은평구', code: '11380' },
+        { name: '종로구', code: '11110' },
+        { name: '중구', code: '11140' },
+        { name: '중랑구', code: '11260' },
+      ],
+      currentList: null,
     }
   },
   computed: {
-    dividedCities() {
-      const divided = [];
-      const rows = 6;
-      const cols = 3;
-      let currentRow = 0;
-
-      for (let i = 0; i < this.cities.length; i += cols) {
-        divided.push(this.cities.slice(i, i + cols));
-      }
-
-      return divided;
+    filteredCities() {
+      const list = this.currentList || this.cities
+      if (!this.searchText) return list
+      return list.filter(item =>
+        item.name.includes(this.searchText)
+      )
     }
   },
+  mounted() {
+    this.currentList = this.cities
+  },
   methods: {
-    async showInvestApart(){
+    async showInvestApart() {
       this.$store.commit('hideAllSpot')
       this.$store.commit('showInvestSpot')
     },
-    async showAllApart(){
+    async showAllApart() {
       this.$store.commit('showAllSpot')
     },
-    async test(value){
-      console.log(value);
-    },
-    async cellClickHandler(item, columnName) {
-      if(item[columnName] === '서울시'){
-        this.cities = this.seoul;
+    async cellClickHandler(item) {
+      this.selectedRegion = item.name
+      if (item.name === '서울시') {
+        this.currentList = this.seoul
+        this.selectedRegionLabel = '서울시'
+      } else if (item.code) {
+        // 구 선택 - 실제 데이터 조회
+        this.selectedRegionLabel = item.name
+        this.$nuxt.$emit('region-selected', item.code)
+      } else {
+        console.log('준비 중인 지역:', item.name)
       }
-      console.log(`Clicked cell in column ${columnName}:`, item[columnName]);
     }
   }
 }

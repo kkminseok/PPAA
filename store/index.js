@@ -9,6 +9,7 @@ const store = () => new Vuex.Store({
         investSpot: [],
         investSpotInfoWindowList:[],
         map: null,
+        apartList: [],
     },
     mutations: {
         setMaxPrice(state, price) {
@@ -50,7 +51,23 @@ const store = () => new Vuex.Store({
         async setMap(state, map){
             state.map = map;
         },
-        
+        setApartList(state, list) {
+            state.apartList = list;
+        },
+        clearSpots(state) {
+            for (var i = 0; i < state.spotList.length; i++) {
+                state.spotList[i].setMap(null);
+            }
+            for (var j = 0; j < state.spotInfoWindowList.length; j++) {
+                state.spotInfoWindowList[j].close();
+            }
+            state.spotList = [];
+            state.spotInfoWindowList = [];
+            state.investSpot = [];
+            state.investSpotInfoWindowList = [];
+            state.maxPrice = null;
+            state.apartList = [];
+        },
     }
   })
   

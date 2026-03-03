@@ -18,8 +18,7 @@ export default {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ],
     script:[
-      { src: '//dapi.kakao.com/v2/maps/sdk.js?appkey=ccf0d2c43215087dbc06b1437f0ebf06&autoload=false',
-        src: '//dapi.kakao.com/v2/maps/sdk.js?appkey=ccf0d2c43215087dbc06b1437f0ebf06&autoload=false&libraries=services'}
+      { src: `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.KAKAO_MAP_KEY}&libraries=services` }
     ]
   },
 
@@ -51,11 +50,11 @@ export default {
   },
   proxy: {
       '/api':{
-        target: `http://openapi.molit.go.kr/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTradeDev`,// proxy url
+        target: `https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev`,
         pathRewrite: {'^/api': ''},
         changeOrigin: true,
         secure: false
-      } 
+      }
   },
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
@@ -75,6 +74,11 @@ export default {
         }
       }
     }
+  },
+
+  publicRuntimeConfig: {
+    kakaoMapKey: process.env.KAKAO_MAP_KEY,
+    molitServiceKey: process.env.MOLIT_SERVICE_KEY,
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
