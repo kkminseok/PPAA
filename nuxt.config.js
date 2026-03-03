@@ -1,6 +1,9 @@
 import colors from 'vuetify/es5/util/colors'
 
 export default {
+  ssr: false,
+  target: 'static',
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     titleTemplate: '%s - PPAA',
@@ -44,11 +47,6 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     '@nuxtjs/axios'
-  ],
-
-  // API 프록시 (Vercel 서버리스 호환)
-  serverMiddleware: [
-    { path: '/api', handler: '~/server-middleware/api-proxy.js' }
   ],
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
