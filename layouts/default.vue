@@ -176,6 +176,44 @@ export default {
         { name: '중구', code: '11140' },
         { name: '중랑구', code: '11260' },
       ],
+      gyeonggi: [
+        { name: '수원 장안구', code: '41111' },
+        { name: '수원 권선구', code: '41113' },
+        { name: '수원 팔달구', code: '41115' },
+        { name: '수원 영통구', code: '41117' },
+        { name: '성남 수정구', code: '41131' },
+        { name: '성남 중원구', code: '41133' },
+        { name: '성남 분당구', code: '41135' },
+        { name: '고양 덕양구', code: '41281' },
+        { name: '고양 일산동구', code: '41285' },
+        { name: '고양 일산서구', code: '41287' },
+        { name: '용인 처인구', code: '41461' },
+        { name: '용인 기흥구', code: '41463' },
+        { name: '용인 수지구', code: '41465' },
+        { name: '안산 상록구', code: '41271' },
+        { name: '안산 단원구', code: '41273' },
+        { name: '안양 만안구', code: '41171' },
+        { name: '안양 동안구', code: '41173' },
+        { name: '의정부시', code: '41150' },
+        { name: '부천시', code: '41190' },
+        { name: '광명시', code: '41210' },
+        { name: '평택시', code: '41220' },
+        { name: '과천시', code: '41290' },
+        { name: '구리시', code: '41310' },
+        { name: '남양주시', code: '41360' },
+        { name: '오산시', code: '41370' },
+        { name: '시흥시', code: '41390' },
+        { name: '군포시', code: '41410' },
+        { name: '의왕시', code: '41430' },
+        { name: '하남시', code: '41450' },
+        { name: '파주시', code: '41480' },
+        { name: '이천시', code: '41500' },
+        { name: '김포시', code: '41570' },
+        { name: '화성시', code: '41590' },
+        { name: '광주시', code: '41610' },
+        { name: '양주시', code: '41630' },
+        { name: '동두천시', code: '41250' },
+      ],
       currentList: null,
     }
   },
@@ -204,6 +242,9 @@ export default {
       if (item.name === '서울시') {
         this.currentList = this.seoul
         this.selectedRegionLabel = '서울시'
+      } else if (item.name === '경기도') {
+        this.currentList = this.gyeonggi
+        this.selectedRegionLabel = '경기도'
       } else if (item.code) {
         // 구 선택 - 실제 데이터 조회
         this.selectedRegionLabel = item.name
