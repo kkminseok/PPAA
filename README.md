@@ -1,6 +1,12 @@
 # PPAA - 평당가 아파트 분석
 
 > 아파트 실거래가 데이터를 기반으로 지역별 평당가를 지도 위에 시각화하는 웹 서비스
+> 3년만에 AI와 함께 죽었던 프로젝트를 살려냈습니다.
+
+## 화면
+
+<img width="1892" height="909" alt="image" src="https://github.com/user-attachments/assets/ad40a97d-0a1c-4035-b2f1-923d0afc8658" />
+
 
 ## 주요 기능
 
