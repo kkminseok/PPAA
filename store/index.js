@@ -10,6 +10,9 @@ const store = () => new Vuex.Store({
         investSpotInfoWindowList:[],
         map: null,
         apartList: [],
+        priceHistory: [],
+        compareRegionA: null,
+        compareRegionB: null,
     },
     mutations: {
         setMaxPrice(state, price) {
@@ -54,6 +57,19 @@ const store = () => new Vuex.Store({
         setApartList(state, list) {
             state.apartList = list;
         },
+        setPriceHistory(state, history) {
+            state.priceHistory = history;
+        },
+        setCompareRegionA(state, region) {
+            state.compareRegionA = region;
+        },
+        setCompareRegionB(state, region) {
+            state.compareRegionB = region;
+        },
+        clearCompare(state) {
+            state.compareRegionA = null;
+            state.compareRegionB = null;
+        },
         clearSpots(state) {
             for (var i = 0; i < state.spotList.length; i++) {
                 state.spotList[i].setMap(null);
@@ -67,6 +83,7 @@ const store = () => new Vuex.Store({
             state.investSpotInfoWindowList = [];
             state.maxPrice = null;
             state.apartList = [];
+            state.priceHistory = [];
         },
     }
   })

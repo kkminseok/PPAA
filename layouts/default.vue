@@ -22,6 +22,9 @@
         />
       </v-sheet>
 
+      <!-- 조회 기간 -->
+      <DateFilter @period-change="onPeriodChange" />
+
       <v-divider />
 
       <!-- 지역 선택 -->
@@ -50,6 +53,11 @@
 
       <v-divider class="my-2" />
 
+      <!-- 즐겨찾기 -->
+      <Favorites :current-region="currentRegion" @region-select="onFavoriteSelect" />
+
+      <v-divider class="my-2" />
+
       <!-- 통계 카드 -->
       <div class="px-3 pb-3">
         <v-card color="grey darken-3" class="mb-2 pa-3" rounded="lg">
@@ -64,6 +72,9 @@
             {{ $store.state.maxPrice ? Math.floor($store.state.maxPrice * 0.7).toLocaleString() + ' 만원' : '-' }}
           </div>
         </v-card>
+
+        <!-- 가격 추이 차트 -->
+        <PriceChart :chart-data="$store.state.priceHistory" />
 
         <v-btn block color="error" class="mb-2" @click="showInvestApart">
           <v-icon left small>mdi-fire</v-icon>
@@ -105,6 +116,15 @@
       <div v-else-if="$store.state.maxPrice === null" class="px-3 py-2 text-caption grey--text text-center">
         지역을 선택하면 순위가 표시됩니다
       </div>
+
+      <!-- 지역 비교 -->
+      <ComparePanel
+        :region-a="$store.state.compareRegionA"
+        :region-b="$store.state.compareRegionB"
+        :current-region="currentRegionForCompare"
+        @add-region="handleAddToCompare"
+        @clear-compare="handleClearCompare"
+      />
     </v-navigation-drawer>
 
     <v-app-bar :clipped-left="clipped" fixed app elevation="2" color="grey darken-4">
@@ -137,6 +157,9 @@ export default {
       selectedRegion: null,
       selectedRegionLabel: null,
       currentDepth: 'city',  // 'city' | 'district'
+      selectedPeriod: 12,
+      selectedRegionCode: null,
+      currentRegion: null,
       cities: [
         { name: '서울시', code: null },
         { name: '경기도', code: null },
@@ -224,6 +247,10 @@ export default {
       return list.filter(item =>
         item.name.includes(this.searchText)
       )
+    },
+    currentRegionForCompare() {
+      if (!this.currentRegion) return null
+      return this.currentRegion
     }
   },
   mounted() {
@@ -237,6 +264,35 @@ export default {
     async showAllApart() {
       this.$store.commit('showAllSpot')
     },
+    onPeriodChange(months) {
+      this.selectedPeriod = months
+      if (this.selectedRegionCode) {
+        this.$nuxt.$emit('region-selected', this.selectedRegionCode, months)
+      }
+    },
+    onFavoriteSelect(region) {
+      this.selectedRegion = region.name
+      this.selectedRegionLabel = region.name
+      this.selectedRegionCode = region.code
+      this.currentRegion = region
+      this.$nuxt.$emit('region-selected', region.code, this.selectedPeriod)
+    },
+    handleAddToCompare(regionName) {
+      const maxPrice = this.$store.state.maxPrice
+      const investCount = this.$store.state.apartList.length
+      const region = { name: regionName, maxPrice, investCount }
+      if (!this.$store.state.compareRegionA) {
+        this.$store.commit('setCompareRegionA', region)
+      } else if (!this.$store.state.compareRegionB) {
+        this.$store.commit('setCompareRegionB', region)
+      } else {
+        this.$store.commit('setCompareRegionA', this.$store.state.compareRegionB)
+        this.$store.commit('setCompareRegionB', region)
+      }
+    },
+    handleClearCompare() {
+      this.$store.commit('clearCompare')
+    },
     async cellClickHandler(item) {
       this.selectedRegion = item.name
       if (item.name === '서울시') {
@@ -248,7 +304,9 @@ export default {
       } else if (item.code) {
         // 구 선택 - 실제 데이터 조회
         this.selectedRegionLabel = item.name
-        this.$nuxt.$emit('region-selected', item.code)
+        this.selectedRegionCode = item.code
+        this.currentRegion = { name: item.name, code: item.code }
+        this.$nuxt.$emit('region-selected', item.code, this.selectedPeriod)
       } else {
         console.log('준비 중인 지역:', item.name)
       }

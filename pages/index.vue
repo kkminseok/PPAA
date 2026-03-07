@@ -16,7 +16,6 @@
 <script>
 import axios from "axios";
 import { serviceKey } from '~/constants/index';
-import { getOneYearsAgo } from "~/utils/date"
 
 export default {
   name: 'IndexPage',
@@ -50,13 +49,13 @@ export default {
         setTimeout(this.waitForKakao, 100);
       }
     },
-    async onRegionSelected(lawdCd) {
+    async onRegionSelected(lawdCd, period = 12) {
       this.loading = true
       this.loadingMessage = '데이터를 불러오는 중...'
       this.$store.commit('clearSpots')
       this.bounds = null
       try {
-        this.apartData = await this.getApartData(lawdCd)
+        this.apartData = await this.getApartData(lawdCd, period)
         if (this.apartData && this.apartData.size > 0) {
           this.loadingMessage = '지도에 마커를 표시하는 중...'
           await this.searchApartment()
@@ -65,16 +64,15 @@ export default {
         this.loading = false
       }
     },
-    async getApartData(lawdCd = '11110') {
+    async getApartData(lawdCd = '11110', period = 12) {
       const result = new Map();
-      const oneYearsAgo = getOneYearsAgo();
-      const splitedDay = oneYearsAgo.split("/");
-      const agoYears = splitedDay[0];
-      const months = splitedDay[1];
-      for (var i = -1; i < 12; ++i) {
-        var tmpDay = new Date(agoYears, parseInt(months) + i);
+      const monthlyAccum = new Map();
+      const today = new Date();
+      for (var i = -(period - 1); i <= 0; ++i) {
+        var tmpDay = new Date(today.getFullYear(), today.getMonth() + i);
         const getMonths = (tmpDay.getMonth() + 1).toString().padStart(2, '0');
         var tmpSearchDay = tmpDay.getFullYear() + "" + getMonths;
+        const shortLabel = tmpSearchDay.slice(2, 4) + '.' + tmpSearchDay.slice(4, 6);
         try {
           const res = await axios.get(
             `/api?serviceKey=${serviceKey}&pageNo=1&numOfRows=1000&LAWD_CD=${lawdCd}&DEAL_YMD=${tmpSearchDay}&_type=json`,
@@ -83,16 +81,25 @@ export default {
           var items = res.data.response.body.items.item;
           if (!items) continue;
           const itemList = Array.isArray(items) ? items : [items];
+          let monthData = monthlyAccum.get(shortLabel) || { total: 0, count: 0 };
           for (var idx = 0; idx < itemList.length; ++idx) {
             const item = itemList[idx];
             if (item.aptNm && item.dealAmount && item.excluUseAr) {
               result.set(item.aptNm, item);
+              const pricePerPyeong = Math.floor(parseInt(item.dealAmount.replace(/,/g, '')) / (item.excluUseAr / 3.3));
+              monthData.total += pricePerPyeong;
+              monthData.count += 1;
             }
           }
+          monthlyAccum.set(shortLabel, monthData);
         } catch (error) {
           console.error("Error fetching data:", error);
         }
       }
+      const priceHistory = Array.from(monthlyAccum.entries())
+        .filter(([, v]) => v.count > 0)
+        .map(([label, v]) => ({ label, value: Math.floor(v.total / v.count) }));
+      this.$store.commit('setPriceHistory', priceHistory);
       return result;
     },
     loadMap() {
