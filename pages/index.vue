@@ -43,13 +43,13 @@ export default {
   methods: {
     waitForKakao() {
       if (window.kakao && window.kakao.maps && window.kakao.maps.Map) {
-        this._kakao = window.kakao;
         this.loadMap();
       } else {
         setTimeout(this.waitForKakao, 100);
       }
     },
     async onRegionSelected(lawdCd, period = 12) {
+      if (!window.kakao || !window.kakao.maps) return;
       this.loading = true
       this.loadingMessage = '데이터를 불러오는 중...'
       this.$store.commit('clearSpots')
@@ -103,7 +103,7 @@ export default {
       return result;
     },
     loadMap() {
-      const kakao = this._kakao;
+      const kakao = window.kakao;
       const container = document.getElementById('map');
       const options = {
         center: new kakao.maps.LatLng(37.5665, 126.9780),
@@ -116,7 +116,7 @@ export default {
       this.onRegionSelected('11110')
     },
     async searchApartment() {
-      const kakao = this._kakao;
+      const kakao = window.kakao;
       const ps = new kakao.maps.services.Places(this.map);
       this.maxPriceApart = await this.findMaxPricePerArea();
       this.$store.commit('setMaxPrice', this.maxPriceApart);
@@ -162,7 +162,7 @@ export default {
       });
     },
     placesSearchCB(data, status, pagination, resolve, reject) {
-      const kakao = this._kakao;
+      const kakao = window.kakao;
       if (status === kakao.maps.services.Status.OK) {
         for (var i = 0; i < data.length; i++) {
           if (data[i].category_name == "부동산 > 주거시설 > 아파트") {
@@ -175,7 +175,7 @@ export default {
       resolve();
     },
     displayMarker(place) {
-      const kakao = this._kakao;
+      const kakao = window.kakao;
       var isInvest = this.isInvestApart();
       var marker = new kakao.maps.Marker({
         map: isInvest ? this.map : null,
